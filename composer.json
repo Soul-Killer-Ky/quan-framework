@@ -7,13 +7,13 @@
   ],
   "name": "zhengyou/quan-framework",
   "description": "the new phalcon framework",
-  "type": "phalcon-framework",
+  "type": "quan-framework",
   "keywords": [
     "framework",
     "phalcon",
     "ORM"
   ],
-  "version": "1.0.1",
+  "version": "1.0.2",
   "homepage": "http://gaore.cn/",
   "license": "Apache-2.0",
   "authors": [
