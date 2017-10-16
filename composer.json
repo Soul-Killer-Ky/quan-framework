@@ -1,0 +1,37 @@
+{
+  "repositories": [
+    {
+      "type": "composer",
+      "url": "http://composer.gaore.com"
+    }
+  ],
+  "name": "zhengyou/quan-framework",
+  "description": "the new phalcon framework",
+  "type": "phalcon-framework",
+  "keywords": [
+    "framework",
+    "phalcon",
+    "ORM"
+  ],
+  "version": "1.0.1",
+  "homepage": "http://gaore.cn/",
+  "license": "Apache-2.0",
+  "authors": [
+    {
+      "name": "liangzhiyuan",
+      "email": "liangzy@gaore.com"
+    }
+  ],
+  "require": {
+    "php": ">=5.6.0",
+    "zhengyou/quan-installer": "~1.0.1"
+  },
+  "autoload": {
+    "psr-4": {
+      "Quan\\": "/"
+    }
+  },
+  "config": {
+    "secure-http": false
+  }
+}
