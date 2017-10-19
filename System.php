@@ -53,6 +53,16 @@ use \Quan\System\Init\Sapi\Services as SapiServices;
 
 class System
 {
+    const ENV_DEVELOPMENT = 'development';
+    const ENV_TESTING = 'testing';
+    const ENV_PRODUCTION = 'production';
+    const VERSION = '1.0.7';
+
+    public static function getVersion()
+    {
+        return self::VERSION;
+    }
+
     /***
      * @param bool $send
      * @return bool|\Phalcon\Http\ResponseInterface

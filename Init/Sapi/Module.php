@@ -17,9 +17,11 @@ use Phalcon\Mvc\View;
 use Phalcon\Mvc\View\Engine\Volt;
 use Phalcon\Text;
 use Quan\System\Mvc\Controller\Event as ControllerEvent;
+use Quan\System\Mvc\View as QuanView;
 use Quan\System\Mvc\View\Event as ViewEvent;
 use Quan\System\QuanStdClass;
 use Quan\System\Response;
+use Quan\System\System;
 
 class Module implements ModuleDefinitionInterface
 {
@@ -74,10 +76,10 @@ class Module implements ModuleDefinitionInterface
 
                 $eventsMangager = new EventsManage();
                 $handler = ControllerEvent::instance($module, $settings);
-                $eventsMangager->attach('dispatch',  $handler);
                 if (!$handler instanceof  ControllerEvent) {
                     $eventsMangager->attach('dispatch',  new ControllerEvent());
                 }
+                $eventsMangager->attach('dispatch',  $handler);
 
                 $dispatcher = new Dispatcher();
                 $namespace= implode('\\', [ucfirst($settings->namespace_root), ucfirst($module), 'Controllers']);
@@ -102,33 +104,39 @@ class Module implements ModuleDefinitionInterface
         if (!in_array($module, $modulesNoView)) {
             $di->setShared(
                 "view",
-                function () use ($appconfig, $module) {
+                function () use ($appconfig, $module, $di) {
 
                     $eventManager = new EventsManage();
-                    $eventManager->attach('view',  ViewEvent::instance($module, $appconfig));
+                    $handler = ViewEvent::instance($module, $appconfig);
+                    if (!$handler instanceof ViewEvent) {
+                        $eventManager->attach('view', new ViewEvent());
+                    }
+                    $eventManager->attach('view',  $handler);
 
-                    $view = new View();
+                    $view = new QuanView();
                     $view->setEventsManager($eventManager);
-                    $view->registerEngines([
-                        ".volt" => function ($view, $di) use ($module) {
-                            $volt = new Volt($view, $di);
+                    $volt = new Volt($view, $di);
+                    $voltOptions = [
+                        "compiledExtension" => ".compiled",
+                        "compiledPath" => function ($templatePath) use ($module){
+                            $dirName = implode(DIRECTORY_SEPARATOR, [RUNTIME_PATH, $module, 'compiled-templates']);
+                            $dirName = Text::reduceSlashes($dirName);
+                            if (!is_dir($dirName)) {
+                                mkdir($dirName, 0755, true);
+                            }
+                            return $dirName. DIRECTORY_SEPARATOR. basename($templatePath). '.php';
+                        }
+                    ];
 
-                            $volt->setOptions(
-                                [
-                                    "compiledExtension" => ".compiled",
-                                    "compiledPath" => function ($templatePath) use ($module){
-                                        $dirName = implode(DIRECTORY_SEPARATOR, [RUNTIME_PATH, $module, 'compiled-templates']);
-                                        $dirName = Text::reduceSlashes($dirName);
-                                        if (!is_dir($dirName)) {
-                                            mkdir($dirName, 0755, true);
-                                        }
-                                        return $dirName. DIRECTORY_SEPARATOR. basename($templatePath). '.php';
-                                    }
-                                ]
-                            );
-                            return $volt;
-                        },
-                        ".phtml"   => "Phalcon\\Mvc\\View\\Engine\\Php",
+                    if (ENVIROMENT == System::ENV_DEVELOPMENT) {
+                        $voltOptions['stat'] = true;
+                        $voltOptions['compileAlways']  = true;
+                    }
+                    $volt->setOptions($voltOptions);
+
+                    $view->registerEngines([
+                        ".volt"  => $volt,
+                        ".phtml" => "Phalcon\\Mvc\\View\\Engine\\Php",
                     ]);
                     $view->setViewsDir(sprintf(APP_PATH. '/applications/%s/%s/', $module, 'views'));
                     return $view;

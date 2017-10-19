@@ -10,8 +10,8 @@ namespace Quan\System\Mvc\View;
 use Phalcon\Events\Manager as EventManager;
 use Phalcon\Events\Event as PhalconEvent;
 use Phalcon\Loader;
-use Phalcon\Mvc\View;
 use Phalcon\Events\Event as MainEvent;
+use Quan\System\Mvc\View;
 
 class Event extends EventManager
 {
@@ -39,5 +39,20 @@ class Event extends EventManager
         } catch (\ReflectionException $e) {
             return new self();
         }
+    }
+
+    public function beforeRender(MainEvent $event, View $view)
+    {
+        $imageUrl = defined('QUAN_CDN_URL') ? QUAN_CDN_URL : '//image.gaore.com/';
+        $baseUrl = $view->getDI()->get('dispatcher')->getModuleName();
+
+        $compiler = $view->getVoltEngine()->getCompiler();
+        $compiler->addFunction('baseurl', function ($args) use ($baseUrl) {
+            return sprintf('"/%s/".', $baseUrl). $args;
+        });
+
+        $compiler->addFunction('cdnurl',  function ($args) use ($imageUrl) {
+            return sprintf('"%s".', $imageUrl). $args;
+        });
     }
 }
