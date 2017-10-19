@@ -12,8 +12,8 @@ use Phalcon\DiInterface;
 use Phalcon\Mvc\ModuleDefinitionInterface;
 use Phalcon\Cli\Dispatcher as CliDispatcher;
 use Phalcon\Events\Manager as EventsManage;
-use Quan\System\EventPlugin;
 use Quan\System\Response;
+use Quan\System\Mvc\Controller\Event as ControllerEvent;
 
 if (!class_exists('Quan\System\Init\Cli\Module')) {
 
@@ -70,6 +70,13 @@ if (!class_exists('Quan\System\Init\Cli\Module')) {
                 "dispatcher",
                 function () use ($settings, $module) {
 
+                    $eventsMangager = new EventsManage();
+                    $handler = ControllerEvent::instance($module, $settings);
+                    $eventsMangager->attach('dispatch',  $handler);
+                    if (!$handler instanceof  ControllerEvent) {
+                        $eventsMangager->attach('dispatch',  new ControllerEvent());
+                    }
+
                     $dispatcher = new CliDispatcher();
                     $namespace= implode('\\', [ucfirst($settings->namespace_root), ucfirst($module), 'Controllers']);
                     $dispatcher->setActionSuffix('');
@@ -77,8 +84,6 @@ if (!class_exists('Quan\System\Init\Cli\Module')) {
                     $dispatcher->setTaskSuffix('Controller');
                     $dispatcher->setDefaultTask('index');
                     $dispatcher->setModuleName($module);
-                    $eventsMangager = new EventsManage();
-                    $eventsMangager->attach('dispatch', new EventPlugin());
                     $dispatcher->setEventsManager($eventsMangager);
                     return $dispatcher;
                 }

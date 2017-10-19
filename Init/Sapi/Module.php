@@ -16,7 +16,8 @@ use Phalcon\Events\Manager as EventsManage;
 use Phalcon\Mvc\View;
 use Phalcon\Mvc\View\Engine\Volt;
 use Phalcon\Text;
-use Quan\System\EventPlugin;
+use Quan\System\Mvc\Controller\Event as ControllerEvent;
+use Quan\System\Mvc\View\Event as ViewEvent;
 use Quan\System\QuanStdClass;
 use Quan\System\Response;
 
@@ -70,15 +71,20 @@ class Module implements ModuleDefinitionInterface
         $di->setShared(
             "dispatcher",
             function () use ($settings, $module) {
+
+                $eventsMangager = new EventsManage();
+                $handler = ControllerEvent::instance($module, $settings);
+                $eventsMangager->attach('dispatch',  $handler);
+                if (!$handler instanceof  ControllerEvent) {
+                    $eventsMangager->attach('dispatch',  new ControllerEvent());
+                }
+
                 $dispatcher = new Dispatcher();
                 $namespace= implode('\\', [ucfirst($settings->namespace_root), ucfirst($module), 'Controllers']);
                 $dispatcher->setDefaultNamespace($namespace. '\\');
                 $dispatcher->setDefaultController('index');
                 $dispatcher->setDefaultAction('index');
                 $dispatcher->setActionSuffix('');
-
-                $eventsMangager = new EventsManage();
-                $eventsMangager->attach('dispatch', new EventPlugin());
                 $dispatcher->setEventsManager($eventsMangager);
                 return $dispatcher;
             }
@@ -97,10 +103,16 @@ class Module implements ModuleDefinitionInterface
             $di->setShared(
                 "view",
                 function () use ($appconfig, $module) {
+
+                    $eventManager = new EventsManage();
+                    $eventManager->attach('view',  ViewEvent::instance($module, $appconfig));
+
                     $view = new View();
+                    $view->setEventsManager($eventManager);
                     $view->registerEngines([
                         ".volt" => function ($view, $di) use ($module) {
                             $volt = new Volt($view, $di);
+
                             $volt->setOptions(
                                 [
                                     "compiledExtension" => ".compiled",
