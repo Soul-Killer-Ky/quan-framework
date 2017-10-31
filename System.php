@@ -69,11 +69,9 @@ class System
      */
     public static function run($send = true)
     {
-        if (defined('APP_PATH')) {
+        if (!defined('APP_PATH')) {
             echo "APP_PATH constant variable has not defined";
             exit;
-        } else {
-            define('APP_PATH', realpath(dirname(__FILE__). '/../'));
         }
 
         define('ENVIROMENT', getenv('GAORE_ENVIRONMENT') ? : 'production');
