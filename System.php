@@ -69,7 +69,26 @@ class System
      */
     public static function run($send = true)
     {
+        if (defined('APP_PATH')) {
+            echo "APP_PATH constant variable has not defined";
+            exit;
+        } else {
+            define('APP_PATH', realpath(dirname(__FILE__). '/../'));
+        }
+
         define('ENVIROMENT', getenv('GAORE_ENVIRONMENT') ? : 'production');
+
+        if (!defined('SYSTEM_PATH')) {
+            define('SYSTEM_PATH', APP_PATH. 'system/');
+        }
+
+        if (!defined('COMMON_PATH')) {
+            define('COMMON_PATH', APP_PATH. 'common/');
+        }
+
+        if (!defined('RUNTIME_PATH')) {
+            define('RUNTIME_PATH', APP_PATH. 'runtime/');
+        }
 
         switch (ENVIROMENT) {
             case 'production':

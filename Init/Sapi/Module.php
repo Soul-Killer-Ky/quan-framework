@@ -102,35 +102,45 @@ class Module implements ModuleDefinitionInterface
         );
 
         if (!in_array($module, $modulesNoView)) {
+
             $di->setShared(
                 "view",
                 function () use ($appconfig, $module, $di) {
 
+                    $viewDir = sprintf(APP_PATH . '/applications/%s/%s/', $module, 'views');
                     $eventManager = new EventsManage();
-                    $handler = ViewEvent::instance($module, $appconfig);
+                    $handler      = ViewEvent::instance($module, $appconfig);
                     if (!$handler instanceof ViewEvent) {
                         $eventManager->attach('view', new ViewEvent());
                     }
-                    $eventManager->attach('view',  $handler);
+                    $eventManager->attach('view', $handler);
 
                     $view = new QuanView();
                     $view->setEventsManager($eventManager);
-                    $volt = new Volt($view, $di);
+                    $volt        = new Volt($view, $di);
                     $voltOptions = [
                         "compiledExtension" => ".compiled",
-                        "compiledPath" => function ($templatePath) use ($module){
-                            $dirName = implode(DIRECTORY_SEPARATOR, [RUNTIME_PATH, $module, 'compiled-templates']);
-                            $dirName = Text::reduceSlashes($dirName);
-                            if (!is_dir($dirName)) {
-                                mkdir($dirName, 0755, true);
+                        "compiledPath"      => function ($templatePath) use ($module, $viewDir) {
+
+                            if (\Phalcon\Text::startsWith($templatePath, $viewDir)) {
+                                $relative = str_replace($viewDir, '', $templatePath);
+                            } else {
+                                $relative = '';
                             }
-                            return $dirName. DIRECTORY_SEPARATOR. basename($templatePath). '.php';
+                            $runtimePath = implode(DIRECTORY_SEPARATOR, [RUNTIME_PATH, $module, 'complied-path']);
+                            $runtimePath .= '/'. $relative. '.php';
+
+                            $runtimeDir = dirname($runtimePath);
+                            if (!is_dir($runtimeDir)) {
+                                mkdir($runtimeDir, 0755, true);
+                            }
+                            return $runtimePath;
                         }
                     ];
 
                     if (ENVIROMENT == System::ENV_DEVELOPMENT) {
-                        $voltOptions['stat'] = true;
-                        $voltOptions['compileAlways']  = true;
+                        $voltOptions['stat']          = true;
+                        $voltOptions['compileAlways'] = true;
                     }
                     $volt->setOptions($voltOptions);
 
@@ -138,7 +148,7 @@ class Module implements ModuleDefinitionInterface
                         ".volt"  => $volt,
                         ".phtml" => "Phalcon\\Mvc\\View\\Engine\\Php",
                     ]);
-                    $view->setViewsDir(sprintf(APP_PATH. '/applications/%s/%s/', $module, 'views'));
+                    $view->setViewsDir($viewDir);
                     return $view;
                 }
             );
