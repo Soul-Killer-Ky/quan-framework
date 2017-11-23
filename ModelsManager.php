@@ -49,10 +49,19 @@ class ModelsManager extends Manager
 
     public function createBuilder($params = null)
     {
-        $this->_curfindParam = $params;
-        return parent::createBuilder($params);
-    }
+        $dependencyInjector = $this->_dependencyInjector;
 
+        if (!is_object($dependencyInjector)) {
+            throw new \Exception("A dependency injection object is required to access ORM services");
+        }
+
+        return $dependencyInjector->get("Quan\\System\\Mvc\\Model\\Query\\Builder",
+            [
+                $params,
+                $dependencyInjector
+            ]
+        );
+    }
 
     public function getModelTableName($model)
     {
