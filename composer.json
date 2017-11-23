@@ -2,7 +2,7 @@
   "repositories": [
     {
       "type": "composer",
-      "url": "http://composer.gaore.com"
+      "url": "https://composer.gaore.com"
     }
   ],
   "name": "zhengyou/quan-framework",
