@@ -40,6 +40,7 @@
 namespace Quan\System;
 
 use Phalcon\Mvc\Model\Manager;
+use Phalcon\Mvc\Model\Query\Builder;
 
 class ModelsManager extends Manager
 {
@@ -55,12 +56,21 @@ class ModelsManager extends Manager
             throw new \Exception("A dependency injection object is required to access ORM services");
         }
 
-        return $dependencyInjector->get("Quan\\System\\Mvc\\Model\\Query\\Builder",
-            [
-                $params,
-                $dependencyInjector
-            ]
-        );
+        if ($params['partition'] == true) {
+            return $dependencyInjector->get("Quan\\System\\Mvc\\Model\\Query\\Builder",
+                [
+                    $params,
+                    $dependencyInjector
+                ]
+            );
+        } else {
+            return $dependencyInjector->get('Phalcon\\Mvc\\Model\\Query\\Builder',
+                [
+                    $params,
+                    $dependencyInjector
+                ]
+            );
+        }
     }
 
     public function getModelTableName($model)

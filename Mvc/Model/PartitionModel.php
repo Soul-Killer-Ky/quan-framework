@@ -10,6 +10,18 @@ namespace Quan\System\Mvc\Model;
 
 trait PartitionModel
 {
+    public static function find($parameters = [])
+    {
+        $parameters['partition'] = true;
+        return parent::find($parameters);
+    }
+
+    public static function findFirst($parameters = [])
+    {
+        $parameters['partition'] = true;
+        return parent::findFirst($parameters);
+    }
+
     /**
      * @param null $parameters
      * @param string $tableid
