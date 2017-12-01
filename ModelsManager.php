@@ -65,7 +65,11 @@ class ModelsManager extends Manager
 
     public function getModelTableName($model)
     {
-        $model = $this->_initialized[strtolower(get_class($model))];
-        return $model->getTableName();
+        return $this->getInitializedModel($model)->getSource();
+    }
+
+    public function getInitializedModel($modelname)
+    {
+        return $this->_initialized[strtolower($modelname)];
     }
 }

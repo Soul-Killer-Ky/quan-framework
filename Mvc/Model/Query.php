@@ -22,8 +22,10 @@ class Query extends \Phalcon\Mvc\Model\Query
             $bindTypes = $this->getBindTypes();
             $bindParams = $this->getBindParams();
 
-            foreach ($irPhql['models'] as $offset => $model) {
-                $model = $this->_modelsInstances[$model];
+            foreach ($irPhql['models'] as $offset => $modelname) {
+
+                $modelmanager = $this->getDI()->get('modelsManager');
+                $model = $this->_modelsInstances[$modelname] ? : $modelmanager->getInitializedModel($modelname);
                 $classuses = class_uses($model);
                 $tableid = $bindTypes['_tableid'];
                 $tablename = $model->getSource();
