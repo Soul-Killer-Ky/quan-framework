@@ -57,18 +57,25 @@ class Modifier
     {
         $intermediate['tables'][0] = $this->tablename;
         foreach ($intermediate['columns'] as $key => $column) {
+
             if (is_array($column['column'])) {
-                $column['column']['domain'] = $this->tablename;
-                if(isset($column['column']['arguments'])) {
-                    foreach ($column['column']['arguments'] as &$argument) {
+
+                if (isset($column['column']['domain'])) {
+                    $column['column']['domain'] = $this->tablename;
+                }
+
+                if (isset($column['column']['arguments'])) {
+                    foreach ($column['column']['arguments'] as $k => $argument) {
                         if ($argument['type'] != 'all') {
                             $argument['domain'] = $this->tablename;
                         }
+                        $column['column']['arguments'][$k] = $argument;
                     }
                 }
             } else {
                 $column['column'] = $this->tablename;
             }
+
             $intermediate['columns'][$key] = $column;
         }
         return $intermediate;

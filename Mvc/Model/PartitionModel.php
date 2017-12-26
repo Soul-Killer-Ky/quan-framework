@@ -16,10 +16,40 @@ trait PartitionModel
         return parent::find($parameters);
     }
 
+    public static function count($parameters = [])
+    {
+        $parameters['partition'] = true;
+        return parent::count($parameters);
+    }
+
+    public static function sum($parameters = [])
+    {
+        $parameters['partition'] = true;
+        return parent::sum($parameters);
+    }
+
     public static function findFirst($parameters = [])
     {
         $parameters['partition'] = true;
         return parent::findFirst($parameters);
+    }
+
+    public static function maximum($parameters = [])
+    {
+        $parameters['partition'] = true;
+        return parent::maximum($parameters);
+    }
+
+    public static function minimum($parameters = [])
+    {
+        $parameters['partition'] = true;
+        return parent::minimum($parameters);
+    }
+
+    public static function average($parameters = [])
+    {
+        $parameters['partition'] = true;
+        return parent::average($parameters);
     }
 
     /**
