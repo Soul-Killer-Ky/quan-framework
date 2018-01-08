@@ -16,7 +16,7 @@ class Services extends \Quan\System\Services
     {
         $this->setShared('router', function () {
             $router = new CliRouter();
-            $router->setDefaultModule($this->get('config')['setting']->application->default_module);
+            $router->setDefaultModule($_SERVER['argv'][1]);
             return $router;
         });
     }

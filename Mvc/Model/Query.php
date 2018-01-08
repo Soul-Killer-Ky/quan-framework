@@ -27,7 +27,7 @@ class Query extends \Phalcon\Mvc\Model\Query
                 $modelmanager = $this->getDI()->get('modelsManager');
                 $model = $this->_modelsInstances[$modelname] ? : $modelmanager->getInitializedModel($modelname);
                 $classuses = class_uses($model);
-                $tableid = $bindTypes['_tableid'];
+                $tableid = isset($bindTypes['_tableid']) ? $bindTypes['_tableid'] : null;
                 $tablename = $model->getSource();
                 $hasPartitionMethod = method_exists($model, '_tablePartition');
 

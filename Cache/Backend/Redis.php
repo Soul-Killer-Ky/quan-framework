@@ -28,6 +28,8 @@ class Redis
 
     protected $_options;
 
+    protected $_redis;
+
     public function __construct(FrontendInterface $frontend = null, array $options = [])
     {
         $default = [
