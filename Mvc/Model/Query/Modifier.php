@@ -38,11 +38,28 @@ class Modifier
         }
 
         if (is_callable($func)) {
-            $this->tablename  = call_user_func_array($func, array($values));
+            list($tablename, $tableid)  = call_user_func_array($func, array($values));
+            if (!is_null($tableid)) {
+                $this->tablename = $tablename. "_" . $tableid;
+            } else {
+                $this->tablename = $tablename;
+            }
         }
 
         $this->intermediate = $this->modifyColumns($this->intermediate);
         $this->intermediate = $this->modifyOrder($this->intermediate);
+        $this->intermediate = $this->modifyGroup($this->intermediate);
+        $this->loopWhere($this->intermediate['where'], $this->tablename);
+
+        $num = array_search($this->tablename, $this->intermediate['tables']);
+        if ($num !== false){
+            $pos = strrpos($this->tablename, '_') ;
+            $endString = substr($this->tablename, $pos + 1);
+            if (is_numeric($endString)) {
+                $this->intermediate['models'][$num] .= "\\{$endString}";
+            }
+        }
+
         $this->intermediate = $this->modifyGroup($this->intermediate);
         $this->loopWhere($this->intermediate['where'], $this->tablename);
         return $this->intermediate;

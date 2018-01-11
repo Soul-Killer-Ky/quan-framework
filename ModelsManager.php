@@ -41,6 +41,7 @@ namespace Quan\System;
 
 use Phalcon\Mvc\Model\Manager;
 use Phalcon\Mvc\Model\Query\Builder;
+use Quan\System\Mvc\Model;
 
 class ModelsManager extends Manager
 {
@@ -83,5 +84,24 @@ class ModelsManager extends Manager
     {
         $model = $this->_initialized[strtolower($modelname)];
         return $model;
+    }
+
+    public function load($modelName, $newInstance = false)
+    {
+        $pos = strrpos($modelName, '\\') ;
+        $endString = substr($modelName, $pos + 1);
+        $startString = substr($modelName, 0, $pos);
+
+        if (!is_numeric($endString)) {
+            return parent::load($modelName, $newInstance);
+        } else {
+            $model = $this->_initialized[strtolower($modelName)] ?? false;
+            if (!$model) {
+                $model = new $startString(null, $this->_dependencyInjector, $this);
+                $this->_initialized[strtolower($modelName)] = $model;
+            }
+            $model->reset();
+            return $model;
+        }
     }
 }

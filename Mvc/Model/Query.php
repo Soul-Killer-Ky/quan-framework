@@ -28,7 +28,7 @@ class Query extends \Phalcon\Mvc\Model\Query
                 $model = $this->_modelsInstances[$modelname] ? : $modelmanager->getInitializedModel($modelname);
                 $classuses = class_uses($model);
                 $tableid = isset($bindTypes['_tableid']) ? $bindTypes['_tableid'] : null;
-                $tablename = $model->getSource();
+                $tablename = $model->getTableName();
                 $hasPartitionMethod = method_exists($model, '_tablePartition');
 
                 if (in_array('Quan\System\Mvc\Model\PartitionModel', $classuses)) {
@@ -57,13 +57,14 @@ class Query extends \Phalcon\Mvc\Model\Query
                             $value = substr_replace($value, '', 0, 1);
                             $value = $bindParams[$value];
                         }
-                        $tablename = call_user_func_array(array($model, '_tablePartition'), array($value, $count));
+                        $tableid = call_user_func_array(array($model, '_tablePartition'), array($value, $count));
                     } elseif (!is_null($tableid) && $hasPartitionMethod) {
-                        $tablename = $tablename. '_'. strval($tableid);
+                        $tableid = strval($tableid);
                     }
                 }
             }
-            return $tablename;
+
+            return [$tablename, $tableid];
         });
 
         $this->_intermediate = $irPhql;

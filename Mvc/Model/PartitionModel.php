@@ -102,7 +102,7 @@ trait PartitionModel
     {
         $field = $this->_tablePartition['field'];
         $count = $this->_tablePartition['count'];
-        $tablename =  call_user_func_array([$this, '_tablePartition'], [$this->$field, $count]);
+        $tablename =  $this->getTableName(). '_'. call_user_func_array([$this, '_tablePartition'], [$this->$field, $count]);
         $this->setSource($tablename);
         return $tablename;
     }

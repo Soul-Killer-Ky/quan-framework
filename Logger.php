@@ -138,7 +138,7 @@ class Logger implements InjectionAwareInterface, AdapterInterface, \ArrayAccess
 
     public function offsetGet($offset)
     {
-        if (!$this->loggers[$offset]) {
+        if (!isset($this->loggers[$offset])) {
             $offset = basename($offset);
             $extension = pathinfo($offset, PATHINFO_EXTENSION);
             $extension = $extension ? : $this->defaultFileExtension;

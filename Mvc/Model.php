@@ -32,9 +32,8 @@ class Model extends \Phalcon\Mvc\Model
         $conn = $this->getWriteConnection();
         static::$_tableprefix = $conn->getDescriptor()['prefix'];
         $this->_tablename = !is_null($this->_tablename) ? $this->_tablename : parent::getSource();
-        $tableid = !is_null($this->_tableid) ? '_'. $this->_tableid : '';
-        $tablename = $conn->getDescriptor()['prefix']. $this->_tablename . $tableid;
-        $this->setSource($tablename);
+        $this->_tablename = $conn->getDescriptor()['prefix']. $this->_tablename;
+        $this->setSource($this->_tablename);
         $this->useDynamicUpdate(true);
     }
 
